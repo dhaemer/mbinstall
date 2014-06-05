@@ -25,7 +25,8 @@ read -p 'ENTER to continue...'
 echo
 
 echo 'Installing Homebrew...'
-ruby -e "$(curl -fsSL https://raw.github.com/mxcl/homebrew/go)"
+ruby -e "$(curl -fsSL https://raw.github.com/Homebrew/homebrew/go/install)"
+echo 'export PATH=/usr/local/bin:$PATH' >>~/.bash_profile
 brew doctor
 brew update
 brew upgrade
@@ -42,7 +43,7 @@ brew install nmap
 brew install ack
 brew install source-highlight
 brew install tree
-brew install jsl
+brew install jslint
 
 # TODO with more and more usage of sneakers, I imagine this may go.
 brew install elasticsearch
@@ -89,10 +90,11 @@ brew install rbenv ruby-build
 
 echo 'Installing FE stuff...'
 brew install node
-gem install scss-lint
+gem install -g scss-lint
 npm install -g bower
 npm install -g gulp
-npm install gulp-scsslint --save-dev
+npm install -g jslint
+npm install -g gulp-scsslint --save-dev
 
 echo 'Grabbing virtual boxes... yeh, this could take a while'
 mkdir VirtualBox VMs
