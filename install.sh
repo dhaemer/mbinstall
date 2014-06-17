@@ -114,7 +114,7 @@ echo '    - Chrome: https://www.google.com/intl/en/chrome/browser/'
 echo '    - Fire Fox: http://www.mozilla.org/en-US/firefox/new/'
 echo '    - Virtualbox: https://www.virtualbox.org/wiki/Downloads'
 echo '    - Vagrant: http://www.vagrantup.com/downloads.html'
-echo '    - iTerm2: http://www.iterm2.com  (http://code.google.com/p/iterm2/downloads/list)'
+echo '    - iTerm2: http://www.iterm2.com/downloads'
 echo '    - Sequel Pro: http://www.sequelpro.com/download/'
 echo '    - Anvil: http://anvilformac.com/'
 echo
