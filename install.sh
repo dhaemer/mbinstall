@@ -38,7 +38,7 @@ brew install -v httpd22 --with-brewed-apr --with-brewed-openssl
 [ ! -d ~/Projects ] && mkdir -pv ~/Projects
 [ ! -d ~/Projects/logs ] && mkdir -pv ~/Projects/logs
 
-# TODO with more and more usage of sneakers, I imagine this may go.
+# TODO
 # brew install elasticsearch
 
 echo
@@ -61,8 +61,6 @@ USERHOME=$(dscl . -read /Users/`whoami` NFSHomeDirectory | awk -F"\: " '{print $
 error_log = ${USERHOME}/Projets/logs/php-error_log
 EOF
 
-touch $(brew --prefix php54)/lib/php/.lock && chmod 0644 $(brew --prefix php54)/lib/php/.lock
-
 echo
 echo 'Installing PHP tooling...'
 brew install phploc
@@ -79,8 +77,8 @@ pear channel-discover pear.phpunit.de
 pear install --alldeps phpunit/phpunit PHP_Codesniffer
 brew unlink php54
 brew link php54
-#echo 'If installed PEAR tools cannot be executed, add "`brew --prefix php54`/bin" to $PATH'
- 
+touch $(brew --prefix php54)/lib/php/.lock && chmod 0644 $(brew --prefix php54)/lib/php/.lock
+
 echo
 echo 'Make "PSR-2" the default coding standard...'
 phpcs --config-set default_standard PSR2
@@ -96,12 +94,12 @@ launchctl load -w ~/Library/LaunchAgents/homebrew.mxcl.httpd22.plist
 
 #echo
 #echo 'Installing dotfiles...'
-#mkdir Projects && cd Projects
+#[ ! -d ~/Projects/config/dotfiles ] && mkdir -pv ~/Projects/config/dotfiles
 #rm -f .bashrc
 #rm -f .bash_profile
 #rm -f .gitconfig
 #rm -f .inputrc
-#git clone https://github.com/mathiasbynens/dotfiles.git && cd dotfiles && source bootstrap.sh
+#git clone https://github.com/mathiasbynens/dotfiles.git && ~/Projects/config/dotfiles && source bootstrap.sh
 #cd ~
 
 echo
@@ -139,6 +137,7 @@ echo
 echo 'Install manually:'
 echo
 echo '    - Mysql: http://www.mysql.com/downloads/mysql/'
+echo '    - Java Runtime Environment (JRE): http://www.oracle.com/technetwork/java/javase/downloads/index.html'
 echo '    - Chrome: https://www.google.com/intl/en/chrome/browser/'
 echo '    - Fire Fox: http://www.mozilla.org/en-US/firefox/new/'
 echo '    - Virtualbox: https://www.virtualbox.org/wiki/Downloads'
