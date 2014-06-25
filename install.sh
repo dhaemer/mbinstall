@@ -30,13 +30,38 @@ brew install ack
 brew install source-highlight
 brew install tree
 
+echo
+echo 'Installing Apache'
+sudo launchctl unload -w /System/Library/LaunchDaemons/org.apache.httpd.plist 2>/dev/null
+brew tap homebrew/apache
+brew install -v httpd22 --with-brewed-apr --with-brewed-openssl
+[ ! -d ~/Projects ] && mkdir -pv ~/Projects
+[ ! -d ~/Projects/logs ] && mkdir -pv ~/Projects/logs
+
 # TODO with more and more usage of sneakers, I imagine this may go.
 # brew install elasticsearch
 
 echo
 echo 'Installing PHP...'
-brew install php54 --with-mysql --with-intl --with-imap
-brew install php54-intl php54-xdebug php54-oauth php54-apc
+brew tap homebrew/php
+brew install php54 --with-mysql --with-intl --with-imap --with-apache
+brew install php54-intl php54-xdebug php54-oauth php54-apc php54-mcrypt
+
+cat >> $(brew --prefix)/etc/apache2/2.2/httpd.conf <<EOF
+# Send PHP extensions to mod_php
+AddHandler php5-script .php
+AddType text/html .php
+DirectoryIndex index.php index.html
+EOF
+
+sed -i '-default' "s|^;\(date\.timezone[[:space:]]*=\).*|\1 \"$(sudo systemsetup -gettimezone|awk -F"\: " '{print $2}')\"|; s|^\(memory_limit[[:space:]]*=\).*|\1 256M|; s|^\(post_max_size[[:space:]]*=\).*|\1 200M|; s|^\(upload_max_filesize[[:space:]]*=\).*|\1 100M|; s|^\(default_socket_timeout[[:space:]]*=\).*|\1 600|; s|^\(max_execution_time[[:space:]]*=\).*|\1 300|; s|^\(max_input_time[[:space:]]*=\).*|\1 600|;" $(brew --prefix)/etc/php/5.4/php.ini
+
+USERHOME=$(dscl . -read /Users/`whoami` NFSHomeDirectory | awk -F"\: " '{print $2}') cat >> $(brew --prefix)/etc/php/5.4/php.ini <<EOF
+; PHP Error log
+error_log = ${USERHOME}/Projets/logs/php-error_log
+EOF
+
+touch $(brew --prefix php54)/lib/php/.lock && chmod 0644 $(brew --prefix php54)/lib/php/.lock
 
 echo
 echo 'Installing PHP tooling...'
@@ -65,15 +90,19 @@ echo 'Installing composer...'
 curl -s https://getcomposer.org/composer.phar -o /usr/local/bin/composer
 chmod +x /usr/local/bin/composer
 
-echo
-echo 'Installing dotfiles...'
-mkdir Projects && cd Projects
-rm -f .bashrc
-rm -f .bash_profile
-rm -f .gitconfig
-rm -f .inputrc
-git clone https://github.com/mathiasbynens/dotfiles.git && cd dotfiles && source bootstrap.sh
-cd ~
+echo 'Start Apache'
+ln -sfv $(brew --prefix httpd22)/homebrew.mxcl.httpd22.plist ~/Library/LaunchAgents
+launchctl load -w ~/Library/LaunchAgents/homebrew.mxcl.httpd22.plist
+
+#echo
+#echo 'Installing dotfiles...'
+#mkdir Projects && cd Projects
+#rm -f .bashrc
+#rm -f .bash_profile
+#rm -f .gitconfig
+#rm -f .inputrc
+#git clone https://github.com/mathiasbynens/dotfiles.git && cd dotfiles && source bootstrap.sh
+#cd ~
 
 echo
 echo 'Installing POW...'
