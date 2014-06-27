@@ -30,13 +30,13 @@ brew install ack
 brew install source-highlight
 brew install tree
 
-echo
-echo 'Installing Apache'
-sudo launchctl unload -w /System/Library/LaunchDaemons/org.apache.httpd.plist 2>/dev/null
-brew tap homebrew/apache
-brew install -v httpd22 --with-brewed-apr --with-brewed-openssl
-[ ! -d ~/Projects ] && mkdir -pv ~/Projects
-[ ! -d ~/Projects/logs ] && mkdir -pv ~/Projects/logs
+#echo
+#echo 'Installing Apache'
+#sudo launchctl unload -w /System/Library/LaunchDaemons/org.apache.httpd.plist 2>/dev/null
+#brew tap homebrew/apache
+#brew install -v httpd22 --with-brewed-apr --with-brewed-openssl
+#[ ! -d ~/Projects ] && mkdir -pv ~/Projects
+#[ ! -d ~/Projects/logs ] && mkdir -pv ~/Projects/logs
 
 # TODO
 # brew install elasticsearch
@@ -88,9 +88,9 @@ echo 'Installing composer...'
 curl -s https://getcomposer.org/composer.phar -o /usr/local/bin/composer
 chmod +x /usr/local/bin/composer
 
-echo 'Start Apache'
-ln -sfv $(brew --prefix httpd22)/homebrew.mxcl.httpd22.plist ~/Library/LaunchAgents
-launchctl load -w ~/Library/LaunchAgents/homebrew.mxcl.httpd22.plist
+#echo 'Start Apache'
+#ln -sfv $(brew --prefix httpd22)/homebrew.mxcl.httpd22.plist ~/Library/LaunchAgents
+#launchctl load -w ~/Library/LaunchAgents/homebrew.mxcl.httpd22.plist
 
 #echo
 #echo 'Installing dotfiles...'
