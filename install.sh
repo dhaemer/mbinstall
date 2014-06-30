@@ -18,33 +18,52 @@ brew upgrade
 
 brew tap homebrew/dupes
 brew tap homebrew/versions
-brew tap homebrew/homebrew-php
 
 echo
 echo 'Installing base tools...'
 brew install autoconf automake apple-gcc42
 brew install git bash-completion
+
+# Add git completion to your bash file
+cat >> ~/.bash_profile <<EOF
+if [ -f $(brew --prefix)/etc/bash_completion ]; then
+    . $(brew --prefix)/etc/bash_completion
+fi
+EOF
+
 brew install wget
 brew install nmap
 brew install ack
 brew install source-highlight
 brew install tree
 
-#echo
-#echo 'Installing Apache'
-#sudo launchctl unload -w /System/Library/LaunchDaemons/org.apache.httpd.plist 2>/dev/null
-#brew tap homebrew/apache
-#brew install -v httpd22 --with-brewed-apr --with-brewed-openssl
-#[ ! -d ~/Projects ] && mkdir -pv ~/Projects
-#[ ! -d ~/Projects/logs ] && mkdir -pv ~/Projects/logs
+echo
+echo 'Installing Apache'
+sudo launchctl unload -w /System/Library/LaunchDaemons/org.apache.httpd.plist 2>/dev/null
+brew tap homebrew/apache
+## --with-brewed-apr --with-brewed-openssl
+brew install -v httpd22 
+[ ! -d ~/Projects ] && mkdir -pv ~/Projects
+[ ! -d ~/Projects/logs ] && mkdir -pv ~/Projects/logs
+[ ! -d ~/Projects/config ] && mkdir -pv ~/Projects/config
+ln -s /usr/local/etc/apache2/2.2/httpd.conf ~/Projects/config/httpd.conf
+USERHOME=$(dscl . -read /Users/`whoami` NFSHomeDirectory | awk -F"\: " '{print $2}') cat >> /usr/local/etc/apache2/2.2/httpd.conf <<EOF
+DocumentRoot "${USERHOME}/Projects"
+ErrorLog "${USERHOME}/Projects/logs/apache2_error_log"
+EOF
 
-# TODO
-# brew install elasticsearch
+echo 'Start Apache'
+ln -sfv /usr/local/opt/httpd22/*.plist ~/Library/LaunchAgents
+launchctl load ~/Library/LaunchAgents/homebrew.mxcl.httpd22.plist
+
+echo
+echo 'Installing elasticsearch...'
+brew install elasticsearch
 
 echo
 echo 'Installing PHP...'
 brew tap homebrew/php
-brew install php54 --with-mysql --with-intl --with-imap --with-apache
+brew install php54 --with-mysql --with-imap --with-apache
 brew install php54-intl php54-xdebug php54-oauth php54-apc php54-mcrypt
 
 cat >> $(brew --prefix)/etc/apache2/2.2/httpd.conf <<EOF
@@ -58,8 +77,10 @@ sed -i '-default' "s|^;\(date\.timezone[[:space:]]*=\).*|\1 \"$(sudo systemsetup
 
 USERHOME=$(dscl . -read /Users/`whoami` NFSHomeDirectory | awk -F"\: " '{print $2}') cat >> $(brew --prefix)/etc/php/5.4/php.ini <<EOF
 ; PHP Error log
-error_log = ${USERHOME}/Projets/logs/php-error_log
+error_log = ${USERHOME}/Projects/logs/php_error_log
 EOF
+ln -s /usr/local/etc/php/5.4/php.ini ~/Projects/config/php.ini
+
 
 echo
 echo 'Installing PHP tooling...'
@@ -72,7 +93,7 @@ chmod -R ug+w `brew --prefix php54`/lib/php
 pear config-set php_ini /usr/local/etc/php/5.4/php.ini
 pear config-set auto_discover 1
 pear update-channels
-pear upgrade
+pear upgrade --force
 pear channel-discover pear.phpunit.de
 pear install --alldeps phpunit/phpunit PHP_Codesniffer
 brew unlink php54
@@ -88,10 +109,6 @@ echo 'Installing composer...'
 curl -s https://getcomposer.org/composer.phar -o /usr/local/bin/composer
 chmod +x /usr/local/bin/composer
 
-#echo 'Start Apache'
-#ln -sfv $(brew --prefix httpd22)/homebrew.mxcl.httpd22.plist ~/Library/LaunchAgents
-#launchctl load -w ~/Library/LaunchAgents/homebrew.mxcl.httpd22.plist
-
 #echo
 #echo 'Installing dotfiles...'
 #[ ! -d ~/Projects/config/dotfiles ] && mkdir -pv ~/Projects/config/dotfiles
@@ -102,12 +119,12 @@ chmod +x /usr/local/bin/composer
 #git clone https://github.com/mathiasbynens/dotfiles.git && ~/Projects/config/dotfiles && source bootstrap.sh
 #cd ~
 
-echo
-echo 'Installing POW...'
-echo 'export POW_DST_PORT=88' >> ~/.powconfig
-sudo curl https://gist.github.com/soupmatt/1058580/raw/zzz_pow.conf -o /private/etc/apache2/other/zzz_pow.conf
-sudo apachectl restart
-curl get.pow.cx | sh
+#echo
+#echo 'Installing POW...'
+#echo 'export POW_DST_PORT=88' >> ~/.powconfig
+#sudo curl -L https://gist.github.com/soupmatt/1058580/raw/zzz_pow.conf -o /usr/local/etc/apache2/2.2/extra/zzz_pow.conf
+#sudo apachectl restart
+#curl get.pow.cx | sh
 
 echo
 echo 'Installing rbenv...'
