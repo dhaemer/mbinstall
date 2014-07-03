@@ -2,7 +2,7 @@
 
 # This script creates virtual hosts.
 # you should put it under /usr/local/bin/
-# and run it with sudo newvhost
+# and run it with add_website
 
 sudo -v
 

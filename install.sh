@@ -145,6 +145,14 @@ echo 'Installing composer...'
 curl -s https://getcomposer.org/composer.phar -o /usr/local/bin/composer
 chmod +x /usr/local/bin/composer
 
+echo
+echo "Copy install files on your mb"
+cd ~/Projects/config
+git clone https://github.com/dhaemer/mbinstall.git
+cp ~/Projects/config/mbinstall/add_website /usr/local/bin/add_website
+chmod 0755 /usr/local/bin/add_website
+cd ~
+
 #echo
 #echo 'Installing dotfiles...'
 #[ ! -d ~/Projects/config/dotfiles ] && mkdir -pv ~/Projects/config/dotfiles
