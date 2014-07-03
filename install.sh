@@ -81,7 +81,6 @@ error_log = ${USERHOME}/Projects/logs/php_error_log
 EOF
 ln -s /usr/local/etc/php/5.4/php.ini ~/Projects/config/php.ini
 
-
 echo
 echo 'Installing PHP tooling...'
 brew install phploc
@@ -136,9 +135,25 @@ brew install node
 sudo gem install scss-lint
 npm install -g jslint
 npm install -g bower
-npm install -g gulp
 npm install -g jslint
-npm install -g gulp-scsslint --save-dev
+npm install -g gulp
+
+echo
+echo 'Installing (almost all) gulp modules...'
+npm install gulp-util --save-dev
+npm install gulp-changed --save-dev
+npm install gulp-livereload --save-dev
+npm install gulp-jshint --save-dev
+npm install jshint-stylish --save-dev
+npm install gulp-concat --save-dev
+npm install gulp-uglify --save-dev
+npm install gulp-imagemin --save-dev
+npm install gulp-sass --save-dev
+npm install gulp-scss-lint --save-dev
+npm install gulp-scsslint --save-dev
+npm install gulp-csslint --save-dev
+npm install gulp-minify-css --save-dev
+npm install gulp-autoprefixer --save-dev
 
 echo
 echo 'Grabbing virtual boxes... yeh, this could take a while'
@@ -161,7 +176,6 @@ echo '    - Virtualbox: https://www.virtualbox.org/wiki/Downloads'
 echo '    - Vagrant: http://www.vagrantup.com/downloads.html'
 echo '    - iTerm2: http://www.iterm2.com/downloads'
 echo '    - Sequel Pro: http://www.sequelpro.com/download/'
-echo '    - Anvil: http://anvilformac.com/'
 echo
 echo '    - Sublime Text: http://www.sublimetext.com/2'
 echo '    - Alfred: http://www.alfredapp.com/#download'
