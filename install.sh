@@ -46,7 +46,6 @@ brew install -v httpd22
 [ ! -d ~/Projects ] && mkdir -pv ~/Projects
 [ ! -d ~/Projects/logs ] && mkdir -pv ~/Projects/logs
 [ ! -d ~/Projects/config ] && mkdir -pv ~/Projects/config
-ln -s /usr/local/etc/apache2/2.2/httpd.conf ~/Projects/config/httpd.conf
 USERHOME=$(dscl . -read /Users/`whoami` NFSHomeDirectory | awk -F"\: " '{print $2}') cat >> /usr/local/etc/apache2/2.2/httpd.conf <<EOF
 DocumentRoot "${USERHOME}/Projects"
 ErrorLog "${USERHOME}/Projects/logs/apache2_error_log"
@@ -66,20 +65,58 @@ brew tap homebrew/php
 brew install php54 --with-mysql --with-imap --with-apache
 brew install php54-intl php54-xdebug php54-oauth php54-apc php54-mcrypt
 
+[ ! -d /usr/local/etc/apache2/2.2/other ] && mkdir -pv /usr/local/etc/apache2/2.2/other
 cat >> $(brew --prefix)/etc/apache2/2.2/httpd.conf <<EOF
+
 # Send PHP extensions to mod_php
+LoadModule php5_module    /usr/local/opt/php54/libexec/apache2/libphp5.so
 AddHandler php5-script .php
 AddType text/html .php
 DirectoryIndex index.php index.html
+
+# Use port 80 instead of 8080
+Listen 80
+NameVirtualHost *:80
+
+# Local dev environment so we can enable these options
+<VirtualHost *:80>
+        ServerName localhost
+        DocumentRoot ${USERHOME}/Projects
+        VirtualDocumentRoot ${USERHOME}/Projects
+
+        <Directory ${USERHOME}/Projects>
+                Options Indexes FollowSymLinks
+                AllowOverride all
+                Order deny,allow
+                Allow from all
+        </Directory>
+</VirtualHost>
+
+# Include all the other domain conf files
+Include /usr/local/etc/apache2/2.2/other/*.conf
+
+# Set doc root to your personal folder
+DocumentRoot "${USERHOME}/Projects"
+
+# Run httpd as a different user and group
+User $(whoami)
+Group admin
+
+# Use this servername for doc root, just in case
+ServerName localhost
 EOF
 
 sed -i '-default' "s|^;\(date\.timezone[[:space:]]*=\).*|\1 \"$(sudo systemsetup -gettimezone|awk -F"\: " '{print $2}')\"|; s|^\(memory_limit[[:space:]]*=\).*|\1 256M|; s|^\(post_max_size[[:space:]]*=\).*|\1 200M|; s|^\(upload_max_filesize[[:space:]]*=\).*|\1 100M|; s|^\(default_socket_timeout[[:space:]]*=\).*|\1 600|; s|^\(max_execution_time[[:space:]]*=\).*|\1 300|; s|^\(max_input_time[[:space:]]*=\).*|\1 600|;" $(brew --prefix)/etc/php/5.4/php.ini
 
-USERHOME=$(dscl . -read /Users/`whoami` NFSHomeDirectory | awk -F"\: " '{print $2}') cat >> $(brew --prefix)/etc/php/5.4/php.ini <<EOF
+cat >> $(brew --prefix)/etc/php/5.4/php.ini <<EOF
 ; PHP Error log
 error_log = ${USERHOME}/Projects/logs/php_error_log
 EOF
 ln -s /usr/local/etc/php/5.4/php.ini ~/Projects/config/php.ini
+ln -s /usr/local/etc/apache2/2.2/httpd.conf ~/Projects/config/httpd.conf
+ln -s /usr/local/etc/apache2/2.2/other/ ~/Projects/config/vhosts
+ln -s /etc/hosts ~/Projects/config/hosts
+sudo chmod 0777 /etc/hosts
 
 echo
 echo 'Installing PHP tooling...'
@@ -117,13 +154,6 @@ chmod +x /usr/local/bin/composer
 #rm -f .inputrc
 #git clone https://github.com/mathiasbynens/dotfiles.git && ~/Projects/config/dotfiles && source bootstrap.sh
 #cd ~
-
-#echo
-#echo 'Installing POW...'
-#echo 'export POW_DST_PORT=88' >> ~/.powconfig
-#sudo curl -L https://gist.github.com/soupmatt/1058580/raw/zzz_pow.conf -o /usr/local/etc/apache2/2.2/extra/zzz_pow.conf
-#sudo apachectl restart
-#curl get.pow.cx | sh
 
 echo
 echo 'Installing rbenv...'

@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# This script creates virtual hosts.
+# you should put it under /usr/local/bin/
+# and run it with sudo newvhost
+
+sudo -v
+
+# Set the path to your localhost
+www=$(dscl . -read /Users/`whoami` NFSHomeDirectory | awk -F"\: " '{print $2}')
+echo "Enter directory/project name in $www"
+read sn
+
+# Create the file with VirtualHost configuration in /etc/apache2/site-available/
+echo "<VirtualHost *:80>
+		ServerName $sn.dev
+		DocumentRoot $www/Projects/$sn
+        VirtualDocumentRoot $www/Projects/$sn
+
+        <Directory $www/Projects/$sn>
+                Options Indexes FollowSymLinks
+			    AllowOverride all
+			    Order deny,allow
+			    Allow from all
+        </Directory>
+</VirtualHost>" > /usr/local/etc/apache2/2.2/other/$sn.conf
+
+# Create the dir if it does not exist
+[ ! -d $www/Projects/$sn/ ] && mkdir -pv $www/Projects/$sn/
+ 
+# Add the host to the hosts file
+echo 127.0.0.1 $sn.dev >> /etc/hosts
+
+# Reload Apache2
+sudo apachectl restart
+
+echo "Your new site is available at http://$sn.dev"
